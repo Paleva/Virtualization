@@ -1,0 +1,35 @@
+---
+  - name: Install Nginx
+    hosts: webservers
+    become: true
+  
+    tasks:
+      - name: Update system
+        apt:
+          update_cache: yes
+          force_apt_get: yes
+  
+      - name: Install Nginx
+        apt:
+          name: nginx
+          state: present
+  
+      - name: Install UFW
+        apt:
+          name: ufw
+          state: present
+  
+      - name: Enable UFW
+        ufw:
+          state: enabled
+  
+      - name: Open port 80
+        ufw:
+          rule: allow
+          port: 80
+          proto: tcp
+  
+      - name: Move html files
+        copy:
+          src: index.html
+          dest: /var/www/html
