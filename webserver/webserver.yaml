@@ -1,0 +1,33 @@
+---
+- name: Install Nginx
+  hosts: webserver
+  become: true
+  become_method: sudo
+
+  tasks:
+    - name: Update system
+      apt:
+        update_cache: yes
+        force_apt_get: yes
+    
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+    
+    - name: Install UFW
+      apt:
+        name: ufw
+        state: present
+
+    - name: Open port 80
+      ufw:
+        state: enable
+        policy: allow
+        port: 80
+
+    - name: Move html files
+      copy:
+        src: toitoi
+        dest: /var/www/html
