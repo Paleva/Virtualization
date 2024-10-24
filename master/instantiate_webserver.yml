@@ -1,0 +1,60 @@
+---
+- name: Install Create VM
+  hosts: localhost
+
+  vars:
+    ansible_python_interpreter: /home/jusm0245/myenv/bin/python3
+
+  vars_files:
+    - /etc/ansible/vault.yml
+
+  tasks:
+    - name: Instantiate VM
+      community.general.one_vm:
+        api_url: https://grid5.mif.vu.lt/cloud3/RPC2
+        api_username: "{{ on_name }}"
+        api_password: "{{ on_password }}"
+        template_id: 2586
+        attributes:
+          name: DB_VM
+        disk_size: 5 GB
+        memory: 512 MB
+        vcpu: 2
+        cpu: 0.1
+        state: present
+      register: result
+
+    - name: Pause for the VM to fully start
+      pause:
+        seconds: 15
+
+    - name: Get VM IP
+      set_fact:
+        vm_ip: "{{ result.instances[0].networks[0].ip }}"
+
+    - name: Show the IP
+      debug:
+        var: vm_ip
+
+    - name: Save IP
+      copy:
+        content: "{{ vm_ip }}"
+        dest: /tmp/ip.txt
+
+    - name: Ensure IP is added to the webserver section
+      become: true
+      lineinfile:
+        path: /etc/ansible/hosts
+        line: "{{ vm_ip }}"
+        state: present
+        insertafter: "^\\[webserver\\]$"
+
+    - name: Copy SSH public key to the VM
+      command: ssh-copy-id "{{ on_name }}"@"{{ vm_ip }}" # NOT OPTIMAL
+
+    - name: Display updated hosts file
+      command: cat /etc/ansible/hosts
+      register: hosts_content
+
+    - debug:
+        var: hosts_content.stdout_lines

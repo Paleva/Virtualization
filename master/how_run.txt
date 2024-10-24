@@ -1,10 +1,1 @@
-1. make vault file in /etc/ansible/
-   e.x
-	---
-	on_name: "jusm0245"
-	sudo_password: "SuperSecretPassword"
-	on_password: "SuperSecretPassword2"
-	on_url: "https://grid5.mif.vu.lt/cloud3/RPC2"
-	on_id: "70745"
-2. make sure you have a python3 env set-up
-3. run ansible-playbook on_vm.yml --ask-vault-pass --ask-become-pass (not sure if you need the second one)
+
